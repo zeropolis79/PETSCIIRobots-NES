@@ -1,0 +1,122 @@
+.segment BANK(BK_CREDITS)
+
+.proc NMI_MUSICPLAYER
+	PPU_DISABLE
+		BIT	PPUSTATUS
+
+		PPU_START_OAM_DMA
+
+		.repeat 5,J
+		PPU_LOAD_ADDR_XY  1, 2, {(J+2)}
+		.repeat 28,I
+		LDA	MP_VIZ_BUFFER+$20*J+I+2
+		STA	PPUDATA
+		.endrepeat
+		.endrepeat
+
+		PPU_LOAD_ADDR_XY  1, 8, 1
+		.repeat 16,I
+		LDA	MP_SONG_BUFFER+I
+		STA	PPUDATA
+		.endrepeat
+
+
+		LDY	MP_LINE_Y
+		LDA	MP_x32_H,Y
+		STA	PPUADDR
+		LDY	MP_LINE_Y
+		LDA	MP_x32_L,Y
+		STA	PPUADDR
+		.repeat 32,I
+		LDA	MP_LINE_BUFFER+I
+		STA	PPUDATA
+		.endrepeat
+
+
+		LDY	MP_LINE_Y
+		LDA	MP_xxx_H,Y
+		STA	PPUADDR
+		LDY	MP_LINE_Y
+		LDA	MP_xxx_L,Y
+		STA	PPUADDR
+		LDA	MP_LINE_PAL
+		.repeat 8,I
+		STA	PPUDATA
+		.endrepeat
+
+
+		BIT	PPUSTATUS
+		LDA	#0
+		STA	PPUSCROLL
+		LDA	MP_Y_SCROLL
+		STA	PPUSCROLL
+
+	PPU_ENABLE
+
+	MMC3_IRQ_DISABLE
+	MMC3_IRQ_LATCH 175
+	MMC3_IRQ_RELOAD
+	MMC3_IRQ_ENABLE
+
+	JSR	MP_INC_Y_SCROLL
+
+	RTS
+.endproc
+
+
+MP_x32_H:
+.repeat 32, I
+	.BYTE  >($2000 + I*32)
+.endrepeat
+MP_x32_L:
+.repeat 32, I
+	.BYTE  <($2000 + I*32)
+.endrepeat
+
+MP_xxx_H:
+.repeat 32, I
+	.BYTE  >($23C0 + (I&%11111100) * 2)
+.endrepeat
+MP_xxx_L:
+.repeat 32, I
+	.BYTE  <($23C0 + (I&%11111100) * 2)
+.endrepeat
+
+
+.proc MP_INC_Y_SCROLL
+	INC	MP_C_SCROLL
+	LDA	MP_C_SCROLL
+	CMP	#3
+	BEQ	:+
+	RTS
+:
+	LDA	#0
+	STA	MP_C_SCROLL
+
+	LDA	MP_WAIT_FRAMES
+	BEQ	:+
+	DEC	MP_WAIT_FRAMES
+	RTS
+:
+
+	INC	MP_Y_SCROLL
+	LDA	MP_Y_SCROLL
+	CMP	#240
+	BEQ	:+
+	RTS
+:
+	LDA	#0
+	STA	MP_Y_SCROLL
+
+	LDA	#1
+	EOR	MP_P_SCROLL
+	STA	MP_P_SCROLL
+
+	LDA	MP_P_SCROLL
+	BNE	:+
+	LDA	#250
+	STA	MP_WAIT_FRAMES
+:
+
+	RTS
+.endproc

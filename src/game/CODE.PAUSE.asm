@@ -1,0 +1,63 @@
+.segment BANK(BK_GAME_CODE)
+
+.proc PAUSE_GAME
+	; darken gamefield
+	SET_GAME_BG_PALETTE  GAME_BG_PALETTE_DARKEN
+	; play click sound
+	LDA	#15
+	JSR	SOUND_SYSTEM_SFX_PLAY
+	;pause clock
+	CLRB	GAME_FLAG, F_CLOCK_ACTIVE
+	;display message to user
+	JSR	SCROLL_INFO
+	LDADDR	PTR_0, MSG_PAUSED
+	JSR	PRINT_INFO
+	;to prevent double-tap of run/stop
+	LDA	#1
+	STA	BG_TIMER
+ @PG0:	LDA	BG_TIMER
+	BNE	@PG0
+	; draw paused text on the screen
+	LDX	#0
+ @PG_L:	LDA	PAUSED_0,X
+	STA	SCR_BUFFER+C_SCREEN_WIDTH* 5+12,X
+	LDA	PAUSED_1,X
+	STA	SCR_BUFFER+C_SCREEN_WIDTH* 6+12,X
+	LDA	PAUSED_2,X
+	STA	SCR_BUFFER+C_SCREEN_WIDTH* 7+12,X
+	INX
+	CPX	#8
+	BNE	@PG_L
+	; transfer screen buffer to ppu
+	SETB	GAME_FLAG, F_TRANSFER_FIELD
+
+	LDA	#20			; FIXME: is this necessary here?
+	STA	KEY_TIMER		; FIXME: is this necessary here?
+ @PG1:	WAIT_NMI
+	JSR	READ_JOYPAD
+	JOYPAD_BR_IF_SELECT_PRESSED  @PG5
+	JOYPAD_BR_IF_B_PRESSED  @PG5
+	JOYPAD_BR_IF_A_PRESSED  @PG6
+	JMP	@PG1
+ @PG5:	JSR	CLEAR_INFO
+	LDA	#20
+	STA	KEY_TIMER
+	SETB	GAME_FLAG, F_CLOCK_ACTIVE
+	LDA	#15
+	JSR	SOUND_SYSTEM_SFX_PLAY
+	; return to default palette
+	SET_GAME_BG_PALETTE  GAME_BG_PALETTE_NORMAL
+	JMP	MAIN_GAME_LOOP
+ @PG6:	LDA	#0
+	STA	UNIT_TYPE	;make player dead
+	LDA	#15
+	JSR	SOUND_SYSTEM_SFX_PLAY
+	; return to default palette
+	SET_GAME_BG_PALETTE  GAME_BG_PALETTE_NORMAL
+	JMP	INIT_GAME_END
+.endproc
+
+
+PAUSED_0:	.BYTE $2E,$1F,$1F,$1F,$1F,$1F,$1F,$2F ; +------+
+PAUSED_1:	.BYTE $2D,'p','a','u','s','e','d',$3D ; |PAUSED|
+PAUSED_2:	.BYTE $3E,$1D,$1D,$1D,$1D,$1D,$1D,$3F ; +------+

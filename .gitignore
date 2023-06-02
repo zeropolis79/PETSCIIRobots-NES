@@ -1,0 +1,16 @@
+.vscode/*
+.ignore/
+
+tools/*
+!tools/cc65/
+!tools/custom/
+!tools/node/
+
+src/build_time.asm
+
+*.o
+*.nes
+*.dbg
+*.nl
+*.d.txt
+*.rom
