@@ -6,6 +6,12 @@ tools/*
 !tools/custom/
 !tools/node/
 
+resources/level/*
+!resources/level/*.bin
+resources/screen/*
+!resources/screen/*.json
+resources/tileset/*.chr
+
 src/build_time.asm
 
 *.o
