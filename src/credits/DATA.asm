@@ -80,13 +80,13 @@ MUSICPLAYER_SCREEN_DATA:
 	.BYTE "                                " ;    
 	.BYTE "           PROGRAMMER           " ; 15 
 	.BYTE "           ----------           " ;    
-	.BYTE "           DAVID MURRY          " ; 16 
+	.BYTE "          DAVID MURRAY          " ; 16 
 	.BYTE "            WAIEL AL            " ;    
 	.BYTE "                                " ; 17 
 	.BYTE "                                " ;    
 	.BYTE "             ARTIST             " ; 18 
 	.BYTE "             ------             " ;    
-	.BYTE "           DAVID MURRY          " ; 19 
+	.BYTE "          DAVID MURRAY          " ; 19 
 	.BYTE "                                " ;    
 	.BYTE "                                " ; 20 
 	.BYTE "        MUSIC & SOUND FX        " ;    
@@ -100,7 +100,7 @@ MUSICPLAYER_SCREEN_DATA:
 	.BYTE "           ALEX SEMENOV         " ;    
 	.BYTE "                                " ; 25 
 	.BYTE "                                " ;    
-	.BYTE "          IN MEMORY OF          " ; 26 
+	.BYTE "        IN MEMORY OF            " ; 26 
 	.BYTE "          SCOTT ROBISON         " ;    
 	.BYTE "                                " ; 27 
 	.BYTE "                                " ;    
